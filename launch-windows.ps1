@@ -15,7 +15,8 @@
 #>
 param(
     [int]$Port = 7000,
-    [string]$BindHost = "127.0.0.1"
+    [string]$BindHost = "127.0.0.1",
+    [switch]$Background
 )
 
 $ErrorActionPreference = "Stop"
@@ -73,7 +74,20 @@ if (-not (Get-Command bash -ErrorAction SilentlyContinue)) {
 }
 
 # 6. Start the server (use `python -m uvicorn` - bare `uvicorn` may not be on PATH)
+# Write-Step ("Starting Odysseus at http://{0}:{1}" -f $BindHost, $Port)
+# Write-Host "Press Ctrl+C to stop."
+# Write-Host ""
+# & $venvPy -m uvicorn app:app --host $BindHost --port $Port
+
 Write-Step ("Starting Odysseus at http://{0}:{1}" -f $BindHost, $Port)
-Write-Host "Press Ctrl+C to stop."
-Write-Host ""
-& $venvPy -m uvicorn app:app --host $BindHost --port $Port
+
+if ($Background) {
+    Write-Host "Running as a headless background daemon..." -ForegroundColor Green
+    $process = Start-Process -FilePath $venvPy -ArgumentList "-m uvicorn app:app --host $BindHost --port $Port" -WindowStyle Hidden -PassThru
+    $process.Id | Out-File -FilePath ".\odysseus.pid" -Encoding ASCII
+    Write-Host "Server started invisibly in the background (PID: $($process.Id)). You can close this terminal." -ForegroundColor Yellow
+} else {
+    Write-Host "Press Ctrl+C to stop."
+    Write-Host ""
+    & $venvPy -m uvicorn app:app --host $BindHost --port $Port
+}
