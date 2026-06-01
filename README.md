@@ -171,6 +171,18 @@ cd odysseus
 powershell -ExecutionPolicy Bypass -File .\launch-windows.ps1
 ```
 
+**Background Execution** (runs the server headlessly without keeping a terminal open):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\launch-windows.ps1 -Background
+```
+
+**Graceful Termination** (stops the background server and cleans up the process tracking file):
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\stop-windows.ps1
+```
+
 Or do it by hand:
 
 ```powershell
